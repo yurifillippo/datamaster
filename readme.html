@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Documentação do Projeto</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+            color: #333;
+        }
+        .container {
+            width: 80%;
+            margin: auto;
+            overflow: hidden;
+            padding: 20px;
+            background: #fff;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        h1, h2, h3 {
+            color: #007BFF;
+        }
+        img {
+            display: block;
+            margin: 20px auto;
+            max-width: 100%;
+            height: auto;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        pre {
+            background: #f8f9fa;
+            color: #343a40;
+            padding: 10px;
+            border-radius: 8px;
+            overflow: auto;
+            font-family: 'Courier New', Courier, monospace;
+        }
+        .section {
+            margin: 20px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Informações Funcionais</h1>
+
+        <div class="section">
+            <p>O objetivo do projeto é entregar valor ao gerente na ponta, informando dados sobre recomendações de produtos. Desta forma o gerente saberá qual produto tem relação ao perfil do cliente que ele está atendendo naquele exato momento.</p>
+            <img src="./image/funcional.png" alt="Diagrama Funcional">
+        </div>
+
+        <h1>Informações Técnicas</h1>
+
+        <div class="section">
+            <h2>Fluxo dos dados</h2>
+            <p>A ingestão é realizada com um spark batch, que utiliza-se de tabelas do postgres, realizando todo um processo de ETL, gerando uma única tabela no HDFS, para o modelo de machine learning acessar.</p>
+            <img src="./image/ingestao_etl.png" alt="Ingestão ETL">
+        </div>
+
+        <div class="section">
+            <h2>Treinamento do modelo de ML</h2>
+            <p>O treinamento é realizado com um Spark Batch, que lê os dados em parquet gerados no HDFS, e cria um modelo de ML, gravando ele no servidor.</p>
+        </div>
+
+        <div class="section">
+            <h2>Fluxo de comunicação de API e Spark Stream</h2>
+            <p>O fluxo se inicia em uma API python, que envia a solicitação de token, e valida sua validade. Após a validação, caso negativa encerra seu fluxo. Caso positiva, envia uma mensagem via Kafka e um Spark Stream coleta e utiliza as informações para executar um modelo de machine learning, que irá retornar a sugestão e gravar os dados em uma tabela do Postgres.</p>
+            <img src="./image/fluxo_dos_dados.png" alt="Fluxo de Dados">
+        </div>
+
+        <h1>Informações de execução do projeto</h1>
+
+        <div class="section">
+            <h2>Para subir o container do projeto seguir as instruções abaixo:</h2>
+
+            <h3>No terminal</h3>
+            <pre><code>make          # Para construir e subir os serviços
+make down     # Para derrubar os serviços
+make clean    # Para limpar as imagens Docker criadas</code></pre>
+
+            <h3>No Postman</h3>
+
+            <div class="api-section">
+                <h4>API: api_solicitation</h4>
+                <p>Cria solicitações a partir do início da jornada, após receber o dado, valida o token e posta mensagem no tópico Kafka.</p>
+                <p><strong>New -> HTTP -> POST</strong></p>
+                <p><strong>URL:</strong> <code>http://localhost:5001/solicitation_token</code></p>
+                <p><strong>Body (RAW -> JSON):</strong></p>
+                <pre><code>{
+  "nome": "Yuri Fillippo Mattos",
+  "cpf": "41400270880"
+}</code></pre>
+            </div>
+
+
+
+            <div class="api-section">
+                <h3>API: generate_token</h3>
+                <p>Cria o token, valida o CPF e grava no PostgreSQL.</p>
+                <p><strong>New -> HTTP -> POST</strong></p>
+                <p><strong>URL:</strong> <code>http://localhost:5002/gerar_token</code></p>
+                <p><strong>Body (RAW -> JSON):</strong></p>
+                <pre><code>{
+  "cpf": "41400270880"
+}</code></pre>
+            </div>
+
+            <h3>Escutar tópico kafka</h3>
+
+            <p>docker exec -it kafka /bin/bash</p>
+
+            <p>/opt/kafka/bin/kafka-console-consumer.sh --bootstrap-server kafka:9092 --topic solicitationtopic --from-beginning</p>
+
+        </div>
+    </div>
+</body>
+</html>

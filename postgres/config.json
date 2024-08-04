@@ -1,0 +1,6 @@
+{"host": "localhost",
+"port":5432,
+"database": "request_manager_product",
+"user": "postgres",
+"password": "11930143605"
+}
