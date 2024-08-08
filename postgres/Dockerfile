@@ -6,6 +6,9 @@ RUN apt-get update && apt-get install -y vim
 
 # Copie o arquivo SQL para dentro do contêiner
 COPY create_table.sql /docker-entrypoint-initdb.d/
+COPY insert1_produtos.sql /docker-entrypoint-initdb.d/
+COPY insert2_clientes.sql /docker-entrypoint-initdb.d/
+COPY insert3_clientes_produtos.sql /docker-entrypoint-initdb.d/
 
 # Opcional: Defina variáveis de ambiente para configurar o PostgreSQL
 ENV POSTGRES_DB="request_manager_product"
